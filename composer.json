@@ -1,0 +1,24 @@
+{    
+    "name": "ulsdevteam/alma-payment-microservice",
+    "description": "Alma Payment Microservice",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/ulsdevteam/php-alma-client"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/ulsdevteam/php-primo-search"
+        }
+    ],
+    "require": {
+        "scriptotek/alma-client": "dev-master",
+        "scriptotek/primo-search": "dev-add-jwt-pubkey",
+        "php-http/guzzle6-adapter": "^2.0",
+        "http-interop/http-factory-guzzle": "^1.0",
+        "firebase/php-jwt": "^5.2",
+        "authorizenet/authorizenet": "^2.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
