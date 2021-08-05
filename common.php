@@ -8,6 +8,14 @@ use Scriptotek\PrimoSearch\Primo as PrimoClient;
 use Scriptotek\Alma\Users\User;
 use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
+use net\authorize\api\contract\v1 as AnetAPI;
+
+function getMerchantAuthentication() {
+    $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
+    $merchantAuthentication->setName(AUTHORIZE_API_LOGIN);
+    $merchantAuthentication->setTransactionKey(AUTHORIZE_API_KEY);
+    return $merchantAuthentication;
+}
 
 /**
  * Get an Alma user object given a JWT payload from that user

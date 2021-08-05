@@ -40,18 +40,19 @@ try {
     exit;
 }
 
-function getMerchantAuthentication() {
-    $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
-    $merchantAuthentication->setName(AUTHORIZE_API_LOGIN);
-    $merchantAuthentication->setTransactionKey(AUTHORIZE_API_KEY);
-    return $merchantAuthentication;
-}
-
 function getAuthorizeTransactionToken($user) {
     $transactionRequest = new AnetAPI\TransactionRequestType();
     $transactionRequest->setTransactionType("authCaptureTransaction");
     $transactionRequest->setAmount($user->fees->total_sum);
     $transactionRequest->setCurrencyCode($user->fees->currency);
+    
+    $order = new AnetAPI\OrderType();
+    $order->setInvoiceNumber('A' . $user->getIdentifiers()->getUniversityId() . dechex(time()));
+    $transactionRequest->setOrder($order);
+
+    $customer = new AnetAPI\CustomerDataType();
+    $customer->setId($user->id);
+    $transactionRequest->setCustomer($customer);
 
     foreach ($user->fees as $fee) {
         $lineItem = new AnetAPI\LineItemType();
