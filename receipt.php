@@ -23,7 +23,7 @@ try {
             $request->setMerchantAuthentication(getMerchantAuthentication());
             $request->setTransId($transactionId);
 
-            $controller = AnetController\AnetController\GetTransactionDetailsController($request);
+            $controller = new AnetController\GetTransactionDetailsController($request);
             $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
 
             if ($response == null) {
@@ -44,7 +44,7 @@ try {
                     'method' => 'ONLINE',
                     'external_transaction_id' => $transactionId
                 ]);
-                $alma->post($url);
+                $alma->post($url, null);
             }
 
             break;
