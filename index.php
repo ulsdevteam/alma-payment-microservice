@@ -47,11 +47,11 @@ function getAuthorizeTransactionToken($user) {
     $transactionRequest->setCurrencyCode($user->fees->currency);
     
     $order = new AnetAPI\OrderType();
-    $order->setInvoiceNumber('A' . $user->getIdentifiers()->getUniversityId() . dechex(time()));
+    $order->setInvoiceNumber('A' . $user->getPrimaryId() . dechex(time()));
     $transactionRequest->setOrder($order);
 
     $customer = new AnetAPI\CustomerDataType();
-    $customer->setId($user->id);
+    $customer->setId($user->getPrimaryId());
     $transactionRequest->setCustomer($customer);
 
     foreach ($user->fees as $fee) {
