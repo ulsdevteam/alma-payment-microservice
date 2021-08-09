@@ -11,10 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 try {
-    // todo: verify using the signature key
     $body = file_get_contents('php://input');
-    $notification = json_decode($body);
+    $signature = $_SERVER["HTTP_X_ANET_SIGNATURE"];
+    $hash = hash_hmac("sha512", $body, AUTHORIZE_SIGNATURE_KEY);
+    if ($signature !== $hash) {
+        http_response_code(400);
+        exit;
+    }
 
+    $notification = json_decode($body);
     switch ($notification->eventType) {
         case 'net.authorize.payment.authcapture.created':
             $transactionId = $notification->payload->id;
