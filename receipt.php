@@ -29,7 +29,7 @@ try {
             $request->setTransId($transactionId);
 
             $controller = new AnetController\GetTransactionDetailsController($request);
-            $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
+            $response = $controller->executeWithApiResponse(AUTHORIZE_ENVIRONMENT);
 
             if ($response == null) {
                 throw new Exception("An error occurred when retrieving transaction details.");

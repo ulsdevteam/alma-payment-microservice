@@ -24,7 +24,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <head></head>
     <body>
-        <form method="post" action="https://test.authorize.net/payment/payment" id="formAuthorizeNetTestPage" name="formAuthorizeNetTestPage">
+        <form method="post" action="<?php echo AUTHORIZE_HOSTED_PAYMENT; ?>" id="formAuthorizeNetTestPage" name="formAuthorizeNetTestPage">
             <input type="hidden" name="token" value="<?php echo $token; ?>" />
         </form>         
     </body>
@@ -72,7 +72,7 @@ function getAuthorizeTransactionToken($user) {
     $orderOptionsSetting->setSettingValue("{\"show\":true}");
     $returnOptionsSetting = new AnetAPI\SettingType();
     $returnOptionsSetting->setSettingName("hostedPaymentReturnOptions");
-    $returnOptionsSetting->setSettingValue("{\"showReceipt\":true}");
+    $returnOptionsSetting->setSettingValue("{\"showReceipt\":true, \"url\":\"" . RETURN_URL . "\", \"cancelUrl\":\"" . RETURN_URL . "\"}");
 
     $request = new AnetAPI\GetHostedPaymentPageRequest();
     $request->setMerchantAuthentication(getMerchantAuthentication());
@@ -82,7 +82,7 @@ function getAuthorizeTransactionToken($user) {
     $request->addToHostedPaymentSettings($returnOptionsSetting);
 
     $controller = new AnetController\GetHostedPaymentPageController($request);
-    $response = $controller->executeWithApiResponse(\net\authorize\api\constants\ANetEnvironment::SANDBOX);
+    $response = $controller->executeWithApiResponse(AUTHORIZE_ENVIRONMENT);
     if ($response != null && $response->getMessages()->getResultCode() == "Ok") {
         return $response->getToken();
     } else if ($response != null) {
