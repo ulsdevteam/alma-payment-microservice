@@ -12,9 +12,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $body = file_get_contents('php://input');
-    $signature = $_SERVER["HTTP_X_ANET_SIGNATURE"];
+    $signatureHeader = $_SERVER["HTTP_X_ANET_SIGNATURE"];
+    // signature header is formatted as "sha512=<signature>"
+    $signature = substr($signatureHeader, 7);
     $hash = hash_hmac("sha512", $body, AUTHORIZE_SIGNATURE_KEY);
-    if ($signature !== $hash) {
+    if (strcasecmp($signature, $hash) !== 0) {
         http_response_code(400);
         exit;
     }
