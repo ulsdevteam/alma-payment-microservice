@@ -40,20 +40,29 @@ try {
     exit;
 }
 
+/**
+ * Given a user, read their fees and use Authorize.net API to create a token that can be used to show a payment form
+ * 
+ * @param Scriptotek\Alma\Users\User $user The alma user
+ * @return string The token
+ */
 function getAuthorizeTransactionToken($user) {
     $transactionRequest = new AnetAPI\TransactionRequestType();
     $transactionRequest->setTransactionType("authCaptureTransaction");
     $transactionRequest->setAmount($user->fees->total_sum);
     $transactionRequest->setCurrencyCode($user->fees->currency);
     
+    // invoice number includes 'A' to indicate an alma transaction, and the user id
     $order = new AnetAPI\OrderType();
     $order->setInvoiceNumber('A' . $user->getPrimaryId() . dechex(time()));
     $transactionRequest->setOrder($order);
 
+    // set the alma user id as the customer id, will be retrieved in the receipt webhook
     $customer = new AnetAPI\CustomerDataType();
     $customer->setId($user->getPrimaryId());
     $transactionRequest->setCustomer($customer);
 
+    // set line item id as the fee id, will also be retrieved in the receipt webhook
     foreach ($user->fees as $fee) {
         $lineItem = new AnetAPI\LineItemType();
         $lineItem->setItemId($fee->id);
@@ -64,6 +73,7 @@ function getAuthorizeTransactionToken($user) {
         $transactionRequest->addToLineItems($lineItem);
     }
 
+    // visual and return url settings for the hosted payment page
     $buttonOptionsSetting = new AnetAPI\SettingType();
     $buttonOptionsSetting->setSettingName("hostedPaymentButtonOptions");
     $buttonOptionsSetting->setSettingValue("{\"text\":\"Pay\"}");

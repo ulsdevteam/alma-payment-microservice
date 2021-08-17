@@ -10,6 +10,11 @@ use Firebase\JWT\JWT;
 use Firebase\JWT\SignatureInvalidException;
 use net\authorize\api\contract\v1 as AnetAPI;
 
+/**
+ * Get an Authorize.net MerchantAuthentication object with the api login and key
+ * 
+ * @return MerchantAuthenticationType
+ */
 function getMerchantAuthentication() {
     $merchantAuthentication = new AnetAPI\MerchantAuthenticationType();
     $merchantAuthentication->setName(AUTHORIZE_API_LOGIN);
