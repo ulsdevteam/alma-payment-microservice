@@ -1,4 +1,5 @@
 <?php
+define('PRIMO_PUBKEY_CACHE_DIR', 'cache');
 define('ALMA_API_KEY', 'alma api key');
 define('ALMA_REGION', 'na');
 define('AUTHORIZE_ENVIRONMENT', 'https://apitest.authorize.net');

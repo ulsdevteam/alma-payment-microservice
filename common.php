@@ -44,8 +44,8 @@ function getAlmaUser(object $jwt_payload): User
  */
 function validateJwt(string $jwt)
 {
-    $cache_file_path = __DIR__ . '/cache/public-key.pem';
-    $log_file_path = __DIR__ . '/cache/public-key.log';
+    $cache_file_path = PRIMO_PUBKEY_CACHE_DIR . '/public-key.pem';
+    $log_file_path = PRIMO_PUBKEY_CACHE_DIR . '/public-key.log';
     if (file_exists($cache_file_path)) {
         $cached_key = file_get_contents($cache_file_path);
     } else {
