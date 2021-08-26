@@ -17,6 +17,11 @@ try {
         exit;
     }
     $user = getAlmaUser($jwt_payload);
+    if ($user->fees->total_sum === 0) {
+        http_response_code(200);
+        echo "You currently have no fines or fees that need to be paid.";
+        exit;
+    }
     $token = getAuthorizeTransactionToken($user);
 ?>
 <!DOCTYPE html>
