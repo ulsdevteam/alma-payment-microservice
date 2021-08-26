@@ -12,6 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $body = file_get_contents('php://input');
+    file_put_contents('receipt_webhook.log', $body . "\n", FILE_APPEND);
     $signatureHeader = $_SERVER["HTTP_X_ANET_SIGNATURE"];
     // signature header is formatted as "sha512=<signature>"
     $signature = substr($signatureHeader, 7);
@@ -66,6 +67,11 @@ try {
     http_response_code(200);
     exit;
 } catch (Throwable $e) {
+    $error_message = $e . "\n";
+    if (isset($notification)) {
+        $error_message = $notification->notificationId . ': ' . $error_message;
+    }
+    file_put_contents('receipt_webhook_error.log', $error_message, FILE_APPEND);
     http_response_code(500);
     exit;
 }
