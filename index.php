@@ -117,23 +117,17 @@ function getAuthorizeTransactionToken($user, $fees) {
         $transactionRequest->addToLineItems($lineItem);
     }
 
-    // visual and return url settings for the hosted payment page
-    $buttonOptionsSetting = new AnetAPI\SettingType();
-    $buttonOptionsSetting->setSettingName("hostedPaymentButtonOptions");
-    $buttonOptionsSetting->setSettingValue("{\"text\":\"Pay\"}");
-    $orderOptionsSetting = new AnetAPI\SettingType();
-    $orderOptionsSetting->setSettingName("hostedPaymentOrderOptions");
-    $orderOptionsSetting->setSettingValue("{\"show\":true}");
-    $returnOptionsSetting = new AnetAPI\SettingType();
-    $returnOptionsSetting->setSettingName("hostedPaymentReturnOptions");
-    $returnOptionsSetting->setSettingValue("{\"showReceipt\":true, \"url\":\"" . RETURN_URL . "\", \"cancelUrl\":\"" . RETURN_URL . "\"}");
-
     $request = new AnetAPI\GetHostedPaymentPageRequest();
     $request->setMerchantAuthentication(getMerchantAuthentication());
     $request->setTransactionRequest($transactionRequest);
-    $request->addToHostedPaymentSettings($buttonOptionsSetting);
-    $request->addToHostedPaymentSettings($orderOptionsSetting);
-    $request->addToHostedPaymentSettings($returnOptionsSetting);
+
+    $settings = json_decode(file_get_contents(AUTHORIZE_HOSTED_PAYMENT_SETTINGS));
+    foreach ($settings as $settingName => $settingValue) {
+        $settingType = new AnetAPI\SettingType();
+        $settingType->setSettingName($settingName);
+        $settingType->setSettingValue(json_encode($settingValue));
+        $request->addToHostedPaymentSettings($settingType);
+    }
 
     $controller = new AnetController\GetHostedPaymentPageController($request);
     $response = $controller->executeWithApiResponse(AUTHORIZE_ENVIRONMENT);

@@ -7,5 +7,5 @@ define('AUTHORIZE_API_LOGIN', 'authorize.net api login id');
 define('AUTHORIZE_API_KEY', 'authorize.net api key');
 define('AUTHORIZE_SIGNATURE_KEY', 'authorize.net signature key');
 define('AUTHORIZE_HOSTED_PAYMENT', 'https://test.authorize.net/payment/payment');
-define('RETURN_URL', 'url to return to in primo');
+define('AUTHORIZE_HOSTED_PAYMENT_SETTINGS', 'hosted-payment-settings.example.json');
 ?>
