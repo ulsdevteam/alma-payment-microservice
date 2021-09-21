@@ -92,7 +92,7 @@ try {
 function getAuthorizeTransactionToken($user, $fees) {
     $transactionRequest = new AnetAPI\TransactionRequestType();
     $transactionRequest->setTransactionType("authCaptureTransaction");
-    $transactionRequest->setAmount($user->fees->total_sum);
+    $transactionRequest->setAmount(array_sum($fees));
     $transactionRequest->setCurrencyCode($user->fees->currency);
     
     // invoice number includes 'A' to indicate an alma transaction, and the user id
