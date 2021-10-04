@@ -21,13 +21,18 @@ try {
         http_response_code(401);
         exit;
     }    
-    $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);
-    if ($method === 'GET') {        
-        $userId = $jwt_payload->userName;
-    } else if ($method === 'POST') {
+    $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);        
+    if ($method === 'POST' && array_key_exists('userId', $_POST)) {
         $userId = $_POST['userId'];
+    } else {
+        $userId = $jwt_payload->userName;
     }
     $user = $alma->users->get($userId);
+    if (!$user->exists()) {
+        http_response_code(400);
+        echo 'User with id "' . $userId . '" was not found.';
+        exit;
+    }
     if ($user->fees->total_sum === 0) {
         http_response_code(200);
         echo "You currently have no fines or fees that need to be paid.";
@@ -38,12 +43,7 @@ try {
         foreach ($user->fees as $fee) {
             $fees[$fee->id] = $fee->balance;
         }
-    } else if ($method === 'POST') {
-        if (!$user->exists()) {
-            http_response_code(400);
-            echo 'User with id "' . $userId . '" was not found.';
-            exit;
-        }
+    } else if ($method === 'POST') {        
         $fees = $_POST['fees'];
         $feeErrors = [];
         foreach ($fees as $feeId => $amount) {
