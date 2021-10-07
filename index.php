@@ -44,7 +44,7 @@ try {
             $fees[$fee->id] = $fee->balance;
         }
     } else if ($method === 'POST') {        
-        $contentType = $_SERVER['HTTP_CONTENT_TYPE'];
+        $contentType = $_SERVER['CONTENT_TYPE'];
         if ($contentType == 'application/json') {
             $body = file_get_contents('php://input');
             $body = json_decode($body, true);
@@ -73,6 +73,7 @@ try {
 
     if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
         http_response_code(200);
+	header('Content-Type: application/json');
         echo json_encode([
             'url' => AUTHORIZE_HOSTED_PAYMENT,
             'token' => $token
