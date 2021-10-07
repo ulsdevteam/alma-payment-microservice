@@ -44,7 +44,17 @@ try {
             $fees[$fee->id] = $fee->balance;
         }
     } else if ($method === 'POST') {        
-        $fees = $_POST['fees'];
+        $contentType = $_SERVER['HTTP_CONTENT_TYPE'];
+        if ($contentType == 'application/json') {
+            $body = file_get_contents('php://input');
+            $body = json_decode($body);
+            $fees = $body['fees'];
+        } else if ($contentType == 'application/x-www-form-urlencoded') {
+            $fees = $_POST['fees'];
+        } else {
+            http_response_code('415');
+            exit;
+        }
         $feeErrors = [];
         foreach ($fees as $feeId => $amount) {
             $fee = $user->fees->get($feeId);
