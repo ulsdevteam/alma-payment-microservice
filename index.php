@@ -47,7 +47,7 @@ try {
         $contentType = $_SERVER['HTTP_CONTENT_TYPE'];
         if ($contentType == 'application/json') {
             $body = file_get_contents('php://input');
-            $body = json_decode($body);
+            $body = json_decode($body, true);
             $fees = $body['fees'];
         } else if ($contentType == 'application/x-www-form-urlencoded') {
             $fees = $_POST['fees'];
