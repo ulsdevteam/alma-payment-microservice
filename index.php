@@ -60,6 +60,15 @@ try {
         }
     }
     $token = getAuthorizeTransactionToken($user, $fees);
+
+    if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
+        http_response_code(200);
+        echo json_encode([
+            'url' => AUTHORIZE_HOSTED_PAYMENT,
+            'token' => $token
+        ]);
+        exit;
+    }
 ?>
 <!DOCTYPE html>
 <html>
