@@ -58,14 +58,16 @@ try {
         $feeErrors = [];
         foreach ($fees as $feeId => $amount) {
             $fee = $user->fees->get($feeId);
-            if ($amount > $fee->balance) {
-                $feeErrors[] = 'Given amount for fee "' . $feeId . '" is higher than the current balance.';
+            if ($amount < 0) {
+                $feeErrors[$feeId] = 'Payment amount cannot be negative.';
+            } else if ($amount > $fee->balance) {
+                $feeErrors[$feeId] = 'Payment amount is higher than the current balance.';
             }
-            // TODO: other checks for fee amounts not being valid based on fee type, i.e. a fee type that must be paid in full
+            // TODO (maybe?): other checks for fee amounts not being valid based on fee type, i.e. a fee type that must be paid in full
         }
         if (!empty($feeErrors)) {
             http_response_code(400);
-            echo join("\n", $feeErrors);
+            echo json_encode($feeErrors);
             exit;
         }
     }
@@ -126,6 +128,7 @@ function getAuthorizeTransactionToken($user, $fees) {
 
     // set line item id as the fee id, will also be retrieved in the receipt webhook
     foreach ($fees as $feeId => $amount) {
+        if ($amount <= 0) continue;
         $fee = $user->fees->get($feeId);
         $lineItem = new AnetAPI\LineItemType();
         $lineItem->setItemId($feeId);
