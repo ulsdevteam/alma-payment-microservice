@@ -65,8 +65,13 @@ try {
             }
             // TODO (maybe?): other checks for fee amounts not being valid based on fee type, i.e. a fee type that must be paid in full
         }
+        // TODO: maybe define a minimum payment amount in config?
+        if (array_sum($fees) == 0) {
+            $feeErrors['other'] = 'Please enter an amount for at least one fee.';
+        }
         if (!empty($feeErrors)) {
             http_response_code(400);
+            header('Content-Type: application/json');
             echo json_encode($feeErrors);
             exit;
         }
@@ -75,7 +80,7 @@ try {
 
     if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
         http_response_code(200);
-	header('Content-Type: application/json');
+	    header('Content-Type: application/json');
         echo json_encode([
             'url' => AUTHORIZE_HOSTED_PAYMENT,
             'token' => $token
