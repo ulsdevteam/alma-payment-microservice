@@ -58,7 +58,9 @@ try {
         $feeErrors = [];
         foreach ($fees as $feeId => $amount) {
             $fee = $user->fees->get($feeId);
-            if ($amount < 0) {
+            if (!isLibraryAllowed($fee->owner->value)) {
+                $feeErrors[$feeId] = 'Fees owned by ' . $fee->owner->desc . ' may not be paid using this service.';
+            } else if ($amount < 0) {
                 $feeErrors[$feeId] = 'Payment amount cannot be negative.';
             } else if ($amount > $fee->balance) {
                 $feeErrors[$feeId] = 'Payment amount is higher than the current balance.';

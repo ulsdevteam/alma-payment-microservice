@@ -85,3 +85,18 @@ function getPublicKeyFromPrimo(): string {
     ]);
     return $primo->getPublicKey();
 }
+
+/**
+ * Given a library code, determine if its fees may be paid using this service based on the allowed/excluded list
+ * @param string $libraryCode
+ * @return bool
+ */
+function isLibraryAllowed(string $libraryCode): bool {
+    if (defined('ALLOWED_LIBRARY_CODES')) {
+        return in_array($libraryCode, ALLOWED_LIBRARY_CODES);
+    } else if (defined('EXCLUDED_LIBRARY_CODES')) {
+        return !in_array($libraryCode, EXCLUDED_LIBRARY_CODES);
+    } else {
+        return true;
+    }
+}
