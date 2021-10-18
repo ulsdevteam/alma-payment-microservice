@@ -61,6 +61,12 @@ function validateJwt(string $jwt)
     }
 }
 
+/**
+ * Gets the Primo and Alma public keys and returns them as an array
+ * 
+ * @param bool $bypassCache When true, gets a fresh key over http even if there is one cached.
+ * @return array An array of the public keys keyed by 'kid', which the JWT::decode function will pick from based on the 'kid' in the JWT.
+ */
 function getPublicKeys(bool $bypassCache) {
     $primo_cache_file_path = PRIMO_PUBKEY_CACHE_DIR . '/primo-public-key.pem';
     $alma_cache_file_path = PRIMO_PUBKEY_CACHE_DIR . '/alma-public-key.pem';
