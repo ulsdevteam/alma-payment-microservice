@@ -8,7 +8,6 @@ use Scriptotek\PrimoSearch\Primo as PrimoClient;
 use Scriptotek\Alma\Users\User;
 use GuzzleHttp\Client as HttpClient;
 use Firebase\JWT\JWT;
-use Firebase\JWT\JWK;
 use Firebase\JWT\SignatureInvalidException;
 use net\authorize\api\contract\v1 as AnetAPI;
 
@@ -44,47 +43,54 @@ function getAlmaUser(object $jwt_payload): User
  * @param string $jwt The encoded JWT
  * @return object|null Returns the decoded payload, or null if the signature is invalid or the token is expired
  */
-function validateJwt(string $jwt) {
-    // TODO: reimplement caching
-    $jwks = getJwks();
-    $jwt_payload = JWT::decode($jwt, JWK::parseKeySet($jwks), ['ES256', 'RS256']);
-    return $jwt_payload;
+function validateJwt(string $jwt)
+{
+    $keys = getPublicKeys(false);
+    try {
+        $jwt_payload = JWT::decode($jwt, $keys, ['ES256', 'RS256']);
+        return $jwt_payload;
+    } catch (SignatureInvalidException $e) {
+        // public key might be outdated
+        $fresh_keys = getPublicKeys();
+        if ($keys === $fresh_keys) {
+            // its not, this jwt is just invalid/expired
+            return null;
+        }
+        $jwt_payload = JWT::decode($jwt, $fresh_keys, ['ES256', 'RS256']);
+        return $jwt_payload;
+    }
 }
-// function validateJwt(string $jwt)
-// {
-//     $cache_file_path = PRIMO_PUBKEY_CACHE_DIR . '/public-key.pem';
-//     $log_file_path = PRIMO_PUBKEY_CACHE_DIR . '/public-key.log';
-//     if (file_exists($cache_file_path)) {
-//         $cached_key = file_get_contents($cache_file_path);
-//     } else {
-//         $cached_key = getPublicKeyFromPrimo();
-//         file_put_contents($cache_file_path, $cached_key);
-//         file_put_contents($log_file_path, 'public key retrieved at ' . date('c') . "\n", FILE_APPEND);
-//     }
-//     try {
-//         $jwt_payload = JWT::decode($jwt, $cached_key, ['ES256']);
-//         return $jwt_payload;
-//     } catch (SignatureInvalidException $e) {
-//         // public key might be outdated
-//         $public_key = getPublicKeyFromPrimo();
-//         if ($cached_key === $public_key) {
-//             // its not, this jwt is just invalid/expired
-//             return null;
-//         } else {
-//             file_put_contents($cache_file_path, $public_key);
-//             file_put_contents($log_file_path, 'public key updated at ' . date('c') . "\n", FILE_APPEND);
-//         }
-//         $jwt_payload = JWT::decode($jwt, $public_key, ['ES256']);
-//         return $jwt_payload;
-//     }
-// }
+
+function getPublicKeys(bool $bypassCache) {
+    $primo_cache_file_path = PRIMO_PUBKEY_CACHE_DIR . '/primo-public-key.pem';
+    $alma_cache_file_path = PRIMO_PUBKEY_CACHE_DIR . '/alma-public-key.pem';
+    $log_file_path = PRIMO_PUBKEY_CACHE_DIR . '/public-key.log';
+    if (file_exists($primo_cache_file_path) && !$bypassCache) {
+        $primo_key = file_get_contents($primo_cache_file_path);
+    } else {
+        $primo_key = getPrimoPublicKey();
+        file_put_contents($primo_cache_file_path, $primo_key);
+        file_put_contents($log_file_path, 'Primo public key retrieved at ' . date('c') . "\n", FILE_APPEND);
+    }
+    if (file_exists($alma_cache_file_path) && !$bypassCache) {
+        $alma_key = file_get_contents($alma_cache_file_path);
+    } else {
+        $alma_key = getAlmaPublicKey();
+        file_put_contents($alma_cache_file_path, $alma_key);
+        file_put_contents($log_file_path, 'Alma public key retrieved at ' . date('c') . "\n", FILE_APPEND);
+    }
+    return [
+        'primaPrivateKey-' . ALMA_INSTITUTION => $primo_key,
+        'exlhep-01' => $alma_key
+    ];
+}
 
 /**
  * Gets the public key from the Primo API
  * 
  * @return string The public key
  */
-function getPublicKeyFromPrimo(): string {
+function getPrimoPublicKey(): string {
     $primo = new PrimoClient([
         'apiKey' => ALMA_API_KEY,
         'region' => ALMA_REGION,
@@ -95,16 +101,14 @@ function getPublicKeyFromPrimo(): string {
 }
 
 /**
- * Get the JSON Web Key Set, which contains the Primo and Alma public keys for the institution
+ * Get the publicly available Alma public key
  * 
- * @return array
+ * @return string The public key
  */
-function getJwks(): array {
+function getAlmaPublicKey(): string {
     $client = new HttpClient();
-    $response = $client->get('https://api-' . ALMA_REGION . '.hosted.exlibrisgroup.com/auth/' . ALMA_INSTITUTION . '/jwks.json', [
-        'query' => PRIMO_SANDBOX ? ['env' => 'sandbox'] : []
-    ]);
-    return json_decode($response->getBody(), true);
+    $response= $client->get('https://developers.exlibrisgroup.com/wp-content/uploads/alma/public-key.pem');
+    return $response->getBody();
 }
 
 /**
