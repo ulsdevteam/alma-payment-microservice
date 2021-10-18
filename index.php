@@ -21,9 +21,21 @@ try {
         http_response_code(401);
         exit;
     }    
-    $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);        
-    if ($method === 'POST' && array_key_exists('userId', $_POST)) {
-        $userId = $_POST['userId'];
+    $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);
+    if ($method === 'POST') {
+        $contentType = $_SERVER['CONTENT_TYPE'];
+        if ($contentType == 'application/json') {
+            $body = file_get_contents('php://input');
+            $body = json_decode($body, true);
+        } else if ($contentType == 'application/x-www-form-urlencoded') {
+            $body = $_POST;
+        } else {
+            http_response_code('415');
+            exit;
+        }
+    }
+    if (!empty($body) && array_key_exists('userId', $body)) {
+        $userId = $body['userId'];
     } else {
         $userId = $jwt_payload->userName;
     }
@@ -44,17 +56,7 @@ try {
             $fees[$fee->id] = $fee->balance;
         }
     } else if ($method === 'POST') {        
-        $contentType = $_SERVER['CONTENT_TYPE'];
-        if ($contentType == 'application/json') {
-            $body = file_get_contents('php://input');
-            $body = json_decode($body, true);
-            $fees = $body['fees'];
-        } else if ($contentType == 'application/x-www-form-urlencoded') {
-            $fees = $_POST['fees'];
-        } else {
-            http_response_code('415');
-            exit;
-        }
+        $fees = $body['fees'];
         $feeErrors = [];
         foreach ($fees as $feeId => $amount) {
             $fee = $user->fees->get($feeId);
