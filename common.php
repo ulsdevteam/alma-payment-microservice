@@ -51,7 +51,7 @@ function validateJwt(string $jwt)
         return $jwt_payload;
     } catch (SignatureInvalidException $e) {
         // public key might be outdated
-        $fresh_keys = getPublicKeys();
+        $fresh_keys = getPublicKeys(true);
         if ($keys === $fresh_keys) {
             // its not, this jwt is just invalid/expired
             return null;
