@@ -126,9 +126,9 @@ function getAuthorizeTransactionToken($user, $fees) {
     $transactionRequest->setAmount(array_sum($fees));
     $transactionRequest->setCurrencyCode($user->fees->currency);
     
-    // invoice number includes 'A' to indicate an alma transaction, and the user id
+    // invoice number based on the microsecond
     $order = new AnetAPI\OrderType();
-    $order->setInvoiceNumber('A' . $user->getPrimaryId() . dechex(time()));
+    $order->setInvoiceNumber('A' . strtoupper(dechex(microtime(true) * 10000)));
     $transactionRequest->setOrder($order);
 
     // set the alma user id as the customer id, will be retrieved in the receipt webhook
