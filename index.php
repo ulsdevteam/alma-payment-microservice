@@ -16,6 +16,8 @@ if ($method === 'OPTIONS') {
 }
 
 try {
+    // JWT for authentication is passed as a query parameter
+    // TODO: may also want to support passing it in the Authorization header?
     $jwt_payload = validateJwt($_GET['jwt']);
     if (!$jwt_payload) {
         http_response_code(401);
@@ -23,6 +25,9 @@ try {
     }    
     $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);
     if ($method === 'POST') {
+        // in the case of a post, the body is expected to contain:
+        // userId: string, optional
+        // fees: array, mapping fee id to amount
         $contentType = $_SERVER['CONTENT_TYPE'];
         if ($contentType == 'application/json') {
             $body = file_get_contents('php://input');
@@ -34,6 +39,7 @@ try {
             exit;
         }
     }
+    // if there's no body (i.e. this is a GET) or userId isn't present, get it from the jwt payload
     if (!empty($body) && array_key_exists('userId', $body)) {
         $userId = $body['userId'];
     } else {
@@ -50,10 +56,13 @@ try {
         echo "You currently have no fines or fees that need to be paid.";
         exit;
     }
+    // in the case of a get, pay the full balance for all allowed fees
     if ($method === 'GET') {
         $fees = [];
         foreach ($user->fees as $fee) {
-            $fees[$fee->id] = $fee->balance;
+            if (isLibraryAllowed($fee->owner->value)) {
+                $fees[$fee->id] = $fee->balance;
+            }
         }
     } else if ($method === 'POST') {        
         $fees = $body['fees'];
