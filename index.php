@@ -155,6 +155,7 @@ function getAuthorizeTransactionToken($user, $fees) {
         $lineItem->setDescription($fee->type->desc);
         $lineItem->setQuantity(1);
         $lineItem->setUnitPrice($amount);
+        $lineItem->setTotalAmount($amount);
         $transactionRequest->addToLineItems($lineItem);
     }
 
