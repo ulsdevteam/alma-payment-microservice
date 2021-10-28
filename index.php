@@ -56,6 +56,7 @@ try {
         echo "You currently have no fines or fees that need to be paid.";
         exit;
     }
+    $hosted_payment_settings_key = 'default';
     // in the case of a get, pay the full balance for all allowed fees
     if ($method === 'GET') {
         $fees = [];
@@ -63,6 +64,9 @@ try {
             if (isLibraryAllowed($fee->owner->value)) {
                 $fees[$fee->id] = $fee->balance;
             }
+        }
+        if (array_key_exists('paymentSettings', $_GET)) {
+            $hosted_payment_settings_key = $_GET['paymentSettings'];
         }
     } else if ($method === 'POST') {        
         $fees = $body['fees'];
@@ -88,8 +92,11 @@ try {
             echo json_encode($feeErrors);
             exit;
         }
+        if (array_key_exists('paymentSettings', $body)) {
+            $hosted_payment_settings_key = $body['paymentSettings'];
+        }
     }
-    $token = getAuthorizeTransactionToken($user, $fees);
+    $token = getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key);
 
     if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
         http_response_code(200);
@@ -127,9 +134,10 @@ try {
  * 
  * @param Scriptotek\Alma\Users\User $user The alma user
  * @param array $fees The fee amounts: those sent by the user if it's a POST, or the full amount for all fees if it's a GET
+ * @param string $hosted_payment_settings_key Key to reference in the payment settings json file, defaults to 'default', uses default if the key is not found
  * @return string The token
  */
-function getAuthorizeTransactionToken($user, $fees) {
+function getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key) {
     $transactionRequest = new AnetAPI\TransactionRequestType();
     $transactionRequest->setTransactionType("authCaptureTransaction");
     $transactionRequest->setAmount(array_sum($fees));
@@ -163,8 +171,11 @@ function getAuthorizeTransactionToken($user, $fees) {
     $request->setMerchantAuthentication(getMerchantAuthentication());
     $request->setTransactionRequest($transactionRequest);
 
-    $settings = json_decode(file_get_contents(AUTHORIZE_HOSTED_PAYMENT_SETTINGS));
-    foreach ($settings as $settingName => $settingValue) {
+    $settings = json_decode(file_get_contents(AUTHORIZE_HOSTED_PAYMENT_SETTINGS), true);
+    if (!array_key_exists($hosted_payment_settings_key, $settings)) {
+        $hosted_payment_settings_key = 'default';
+    }
+    foreach ($settings[$hosted_payment_settings_key] as $settingName => $settingValue) {
         $settingType = new AnetAPI\SettingType();
         $settingType->setSettingName($settingName);
         $settingType->setSettingValue(json_encode($settingValue));

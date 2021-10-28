@@ -1,11 +1,13 @@
 {
-    "hostedPaymentButtonOptions": {
-        "text": "Pay"
-    },
-    "hostedPaymentOrderOptions": {
-        "show": true
-    },
-    "hostedPaymentReturnOptions": {
-        "showReceipt": true
+    "default": {
+        "hostedPaymentButtonOptions": {
+            "text": "Pay"
+        },
+        "hostedPaymentOrderOptions": {
+            "show": true
+        },
+        "hostedPaymentReturnOptions": {
+            "showReceipt": true
+        }
     }
 }
