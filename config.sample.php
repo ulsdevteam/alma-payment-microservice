@@ -9,6 +9,7 @@ define('AUTHORIZE_API_KEY', 'authorize.net api key');
 define('AUTHORIZE_SIGNATURE_KEY', 'authorize.net signature key');
 define('AUTHORIZE_HOSTED_PAYMENT', 'https://test.authorize.net/payment/payment');
 define('AUTHORIZE_HOSTED_PAYMENT_SETTINGS', 'hosted-payment-settings.example.json');
+define('ALLOW_INSTITUTION_LEVEL_FEES', true);
 // Either of the following may be defined. If neither are defined all libraries are considered allowed.
 define('ALLOWED_LIBRARY_CODES', ['array of library codes', 'whose fees may be paid using this service']);
 define('EXCLUDED_LIBRARY_CODES', ['array of library codes', 'whose fees may NOT be paid using this service']);

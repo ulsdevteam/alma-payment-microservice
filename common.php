@@ -122,8 +122,11 @@ function getAlmaPublicKey(): string {
  * @param string $libraryCode
  * @return bool
  */
-function isLibraryAllowed(string $libraryCode): bool {
-    if (defined('ALLOWED_LIBRARY_CODES')) {
+function isAllowed(string $libraryCode): bool {
+    if ($libraryCode === ALMA_INSTITUTION){
+        return ALLOW_INSTITUTION_LEVEL_FEES;
+    }
+    else if (defined('ALLOWED_LIBRARY_CODES')) {
         return in_array($libraryCode, ALLOWED_LIBRARY_CODES);
     } else if (defined('EXCLUDED_LIBRARY_CODES')) {
         return !in_array($libraryCode, EXCLUDED_LIBRARY_CODES);

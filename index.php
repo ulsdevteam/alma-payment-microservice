@@ -61,7 +61,7 @@ try {
     if ($method === 'GET') {
         $fees = [];
         foreach ($user->fees as $fee) {
-            if (isLibraryAllowed($fee->owner->value)) {
+            if (isAllowed($fee->owner->value)) {
                 $fees[$fee->id] = $fee->balance;
             }
         }
@@ -78,7 +78,7 @@ try {
         $feeErrors = [];
         foreach ($fees as $feeId => $amount) {
             $fee = $user->fees->get($feeId);
-            if (!isLibraryAllowed($fee->owner->value)) {
+            if (!isAllowed($fee->owner->value)) {
                 $feeErrors[$feeId] = 'Fees owned by ' . $fee->owner->desc . ' may not be paid using this service.';
             } else if ($amount < 0) {
                 $feeErrors[$feeId] = 'Payment amount cannot be negative.';

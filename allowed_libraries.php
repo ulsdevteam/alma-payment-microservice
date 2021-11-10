@@ -22,7 +22,7 @@ try {
     $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);
     $allowedLibraries = [];
     foreach ($alma->conf->libraries as $library) {
-        if (isLibraryAllowed($library->code)) {
+        if (isAllowed($library->code)) {
             $allowedLibraries[] = [
                 'code' => $library->code,
                 'name' => $library->name,
@@ -31,7 +31,10 @@ try {
     }
     http_response_code(200);
     header('Content-Type: application/json');
-    echo json_encode($allowedLibraries);
+    echo json_encode([
+        'allowInstitutionFees' => ALLOW_INSTITUTION_LEVEL_FEES,
+        'libraries' => $allowedLibraries,
+    ]);
     exit;
 } catch (Throwable $e) {
     http_response_code(500);
