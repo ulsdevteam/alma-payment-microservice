@@ -65,6 +65,11 @@ try {
                 $fees[$fee->id] = $fee->balance;
             }
         }
+        if (empty($fees)) {
+            http_response_code(200);
+            echo "You currently have no fines or fees that may be paid online.";
+            exit;
+        }
         if (array_key_exists('paymentSettings', $_GET)) {
             $hosted_payment_settings_key = $_GET['paymentSettings'];
         }
