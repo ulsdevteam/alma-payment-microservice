@@ -12,4 +12,6 @@ define('AUTHORIZE_HOSTED_PAYMENT_SETTINGS', 'hosted-payment-settings.example.jso
 // Either of the following may be defined. If neither are defined all libraries are considered allowed.
 define('ALLOWED_LIBRARY_CODES', ['array of library codes', 'whose fees may be paid using this service']);
 define('EXCLUDED_LIBRARY_CODES', ['array of library codes', 'whose fees may NOT be paid using this service']);
+// Optional, for those cases where a minimum amount is desired due to payment processor fees, etc.
+define('MINIMUM_TOTAL_AMOUNT', 5.00);
 ?>

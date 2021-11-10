@@ -82,9 +82,11 @@ try {
             }
             // TODO (maybe?): other checks for fee amounts not being valid based on fee type, i.e. a fee type that must be paid in full
         }
-        // TODO: maybe define a minimum payment amount in config?
-        if (array_sum($fees) == 0) {
+        $total = array_sum($fees);
+        if ($total == 0) {
             $feeErrors['other'] = 'Please enter an amount for at least one fee.';
+        } else if (defined('MINIMUM_TOTAL_AMOUNT') && $total < MINIMUM_TOTAL_AMOUNT) {
+            $feeErrors['other'] = 'The minimum total payment amount is ' . MINIMUM_TOTAL_AMOUNT . '.';
         }
         if (!empty($feeErrors)) {
             http_response_code(400);
