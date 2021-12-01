@@ -76,22 +76,56 @@ try {
     } else if ($method === 'POST') {        
         $fees = $body['fees'];
         $feeErrors = [];
-        foreach ($fees as $feeId => $amount) {
-            $fee = $user->fees->get($feeId);
-            if (!isAllowed($fee->owner->value)) {
-                $feeErrors[$feeId] = 'Fees owned by ' . $fee->owner->desc . ' may not be paid using this service.';
-            } else if ($amount < 0) {
-                $feeErrors[$feeId] = 'Payment amount cannot be negative.';
-            } else if ($amount > $fee->balance) {
-                $feeErrors[$feeId] = 'Payment amount is higher than the current balance.';
+        if (!empty($fees['all'])) {
+            if (count($fees) != 1) {
+                $feeErrors['all'] = 'When paying against all fees, please do not also include payments for individual fees.';
+            } else {
+                $amount = $fees['all'];
+                if ($amount <= 0) {
+                    $feeErrors['all'] = 'Please enter an amount.';
+                } else if (defined('MINIMUM_TOTAL_AMOUNT') && $amount < MINIMUM_TOTAL_AMOUNT) {
+                    $feeErrors['all'] = 'The minimum payment amount is ' . MINIMUM_TOTAL_AMOUNT . '.';
+                } else {
+                    $allowedFees = [];
+                    foreach ($user->fees as $fee) {
+                        if (isAllowed($fee->owner->value)) {
+                            $allowedFees[] = $fee;
+                        }
+                    }
+                    // Sort the allowed fees from highest to lowest balance, and apply the total payment in that order
+                    usort($allowedFees, function($a, $b) { return -($a->balance <=> $b->balance); });
+                    $fees = [];
+                    foreach ($allowedFees as $fee) {
+                        $partialAmount = min($amount, $fee->balance);
+                        $fees[$fee->id] = $partialAmount;
+                        $amount -= $partialAmount;
+                        if ($amount == 0) {
+                            break;
+                        }
+                    }
+                    if ($amount > 0) {
+                        $feeErrors['all'] = 'Payment amount is higher than the current total balance of eligible fees.';
+                    }
+                }
+            }            
+        } else {
+            foreach ($fees as $feeId => $amount) {
+                $fee = $user->fees->get($feeId);
+                if (!isAllowed($fee->owner->value)) {
+                    $feeErrors[$feeId] = 'Fees owned by ' . $fee->owner->desc . ' may not be paid using this service.';
+                } else if ($amount < 0) {
+                    $feeErrors[$feeId] = 'Payment amount cannot be negative.';
+                } else if ($amount > $fee->balance) {
+                    $feeErrors[$feeId] = 'Payment amount is higher than the current balance.';
+                }
+                // TODO (maybe?): other checks for fee amounts not being valid based on fee type, i.e. a fee type that must be paid in full
             }
-            // TODO (maybe?): other checks for fee amounts not being valid based on fee type, i.e. a fee type that must be paid in full
-        }
-        $total = array_sum($fees);
-        if ($total == 0) {
-            $feeErrors['other'] = 'Please enter an amount for at least one fee.';
-        } else if (defined('MINIMUM_TOTAL_AMOUNT') && $total < MINIMUM_TOTAL_AMOUNT) {
-            $feeErrors['other'] = 'The minimum total payment amount is ' . MINIMUM_TOTAL_AMOUNT . '.';
+            $total = array_sum($fees);
+            if ($total == 0) {
+                $feeErrors['other'] = 'Please enter an amount for at least one fee.';
+            } else if (defined('MINIMUM_TOTAL_AMOUNT') && $total < MINIMUM_TOTAL_AMOUNT) {
+                $feeErrors['other'] = 'The minimum total payment amount is ' . MINIMUM_TOTAL_AMOUNT . '.';
+            }
         }
         if (!empty($feeErrors)) {
             http_response_code(400);
@@ -105,6 +139,7 @@ try {
     }
     $token = getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key);
 
+    // TODO: Accept header can contain a more complicated expression indicating multiple MIME types, which ought to be handled
     if ($_SERVER['HTTP_ACCEPT'] == 'application/json') {
         http_response_code(200);
 	    header('Content-Type: application/json');
