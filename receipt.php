@@ -53,7 +53,7 @@ try {
                 // mark each fee as paid
                 $url = $alma->buildUrl('/users/' . $userId . '/fees/' . $feeId, [
                     'op' => 'pay',
-                    'amount' => strval($lineItem->getTotalAmount()),
+                    'amount' => strval($lineItem->getUnitPrice()),
                     'method' => 'ONLINE',
                     'external_transaction_id' => $transactionId
                 ]);
