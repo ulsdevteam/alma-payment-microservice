@@ -155,12 +155,12 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
     <head></head>
     <body>
-        <form method="post" action="<?php echo AUTHORIZE_HOSTED_PAYMENT; ?>" id="formAuthorizeNetTestPage" name="formAuthorizeNetTestPage">
+        <form method="post" action="<?php echo AUTHORIZE_HOSTED_PAYMENT; ?>" id="formAuthorizeNetPage" name="formAuthorizeNetPage">
             <input type="hidden" name="token" value="<?php echo $token; ?>" />
         </form>         
     </body>
     <script type="text/javascript">
-        document.getElementById('formAuthorizeNetTestPage').submit();
+        document.getElementById('formAuthorizeNetPage').submit();
     </script>
 </html>
 <?php
