@@ -6,7 +6,11 @@ This microservice provides three endpoints: index.php, allowed_libraries.php, an
 
 All endpoints expect a `jwt` url parameter for authentication, which should be a token granted by Alma/Primo.
 
-## index.php
+## Configuration
+
+The service expects certain constants to be defined in a `config.php` file. See [the sample config file](config.sample.php) for what these constants are and mean.
+
+## [index.php](index.php)
 
 This endpoint implements the primary functionality of this service, which is to construct a transaction and return a token for use with Authorize.net's Accept Hosted solution. Which of the user's fees are included in the transaction depends on how this endpoint is called.
 
@@ -51,11 +55,11 @@ or
 
 The data returned from this endpoint depends on the value of the request's `Accept` header. If it is `application/json`, it will return an object containing the `url` of the Authorize.net hosted payment page and the `token` to be posted to that page. Otherwise, it will return an html document that will automatically post the token to that url via Javascript when rendered.
 
-## allowed_libraries.php
+## [allowed_libraries.php](allowed_libraries.php)
 
 A GET request to this endpoint will return a JSON array of objects containing a `code` and `name` for each library that is allowed based on the allowlist or denylist in the configuration. The intended purpose of this is for filtering fees based on their owning library in the UI that uses this service.
 
-## receipt.php
+## [receipt.php](receipt.php)
 
 When a transaction is processed in Authorize.net, it is configured to POST a `net.authorize.payment.authcapture.created` event to this endpoint as a webhook. This endpoint gets the transaction data based on the ID contained in the event, then updates the Alma fees to be paid based on that transaction data.
 
