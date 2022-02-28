@@ -55,6 +55,10 @@ or
 
 The data returned from this endpoint depends on the value of the request's `Accept` header. If it is `application/json`, it will return an object containing the `url` of the Authorize.net hosted payment page and the `token` to be posted to that page. Otherwise, it will return an html document that will automatically post the token to that url via Javascript when rendered.
 
+## Hosted Payment settings 
+
+The hosted payment settings are configured via json. This json can have multiple user-defined keys, in order to potentially have a different presentation or different redirect behavior depending on the system using this service. This is implemented by sending a `paymentSettings` key in the POST request body to `index.php`. If this key is not present, it will use the `default` settings information. An example of the expected structure of the settings file can be found [here](hosted-payment-settings.example.json). Definitions for these settings can be found [here](https://developer.authorize.net/api/reference/features/accept_hosted.html#Hosted_Form_Parameter_Settings).
+
 ## [allowed_libraries.php](allowed_libraries.php)
 
 A GET request to this endpoint will return a JSON array of objects containing a `code` and `name` for each library that is allowed based on the allowlist or denylist in the configuration. The intended purpose of this is for filtering fees based on their owning library in the UI that uses this service.
