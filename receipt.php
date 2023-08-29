@@ -1,9 +1,6 @@
 <?php
 
 require_once 'common.php';
-use Scriptotek\Alma\Client as AlmaClient;
-use net\authorize\api\contract\v1 as AnetAPI;
-use net\authorize\api\controller as AnetController;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(400);
