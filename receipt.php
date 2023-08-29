@@ -30,6 +30,8 @@ try {
         case 'net.authorize.payment.authcapture.created':
             $transactionId = $notification->payload->id;
 
+            shell_exec('php record_alma_transaction.php ' . $transactionId . ' 2>&1 | tee -a record_transaction.log 2>/dev/null >/dev/null &');
+/*
             $request = new AnetApi\GetTransactionDetailsRequest();
             $request->setMerchantAuthentication(getMerchantAuthentication());
             $request->setTransId($transactionId);
@@ -59,7 +61,7 @@ try {
                 ]);
                 $alma->post($url, null);
             }
-
+*/
             break;
         
         default:
@@ -74,7 +76,7 @@ try {
         if (isset($notification)) {
             $error_message = $notification->notificationId . ': ' . $error_message;
         }
-        file_put_contents(WEBHOOK_ERROR_LOG_PATH, $error_message, FILE_APPEND);
+        file_put_contents(WEBHOOK_ERROR_LOG_PATH, date('[Y-m-d h:m:s] ') . $error_message, FILE_APPEND);
     }
     http_response_code(500);
     exit;

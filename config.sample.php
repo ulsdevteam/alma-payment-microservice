@@ -17,4 +17,5 @@ define('EXCLUDED_LIBRARY_CODES', ['array of library codes', 'whose fees may NOT 
 define('MINIMUM_TOTAL_AMOUNT', 5.00);
 define('WEBHOOK_LOG_PATH', 'receipt_webhook.log');
 define('WEBHOOK_ERROR_LOG_PATH', 'receipt_webhook_error.log');
+define('WEBHOOK_ERROR_NOTIFICATION_EMAIL', 'example@example.com');
 ?>
