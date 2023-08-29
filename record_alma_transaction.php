@@ -26,6 +26,9 @@ try {
     }
 
     $transaction = $response->getTransaction();
+    if (substr($transaction->getOrder()->getInvoiceNumber(), 0, 4) != 'ALMA') {
+        exit;
+    }
     $userId = $transaction->getCustomer()->getId();
     $alma = new AlmaClient(ALMA_API_KEY, ALMA_REGION);
     foreach ($transaction->getLineItems() as $lineItem) {
