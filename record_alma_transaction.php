@@ -51,6 +51,6 @@ try {
         file_put_contents(WEBHOOK_ERROR_LOG_PATH, $error_message, FILE_APPEND);
     }
     if (defined('WEBHOOK_ERROR_NOTIFICATION_EMAIL')) {
-        mail(WEBHOOK_ERROR_NOTIFICATION_EMAIL, 'Alma Payment Receipt Webhook Error', $e);
+        mail(WEBHOOK_ERROR_NOTIFICATION_EMAIL, 'Alma Payment Receipt Webhook Error for Transaction ' . $transactionId, $e);
     }
 }
