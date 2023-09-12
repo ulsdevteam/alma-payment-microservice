@@ -3,7 +3,7 @@
 require_once 'common.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(400);
+    http_response_code(405);
     exit;
 }
 
@@ -17,8 +17,8 @@ try {
     $signature = substr($signatureHeader, 7);
     $hash = hash_hmac("sha512", $body, AUTHORIZE_SIGNATURE_KEY);
     if (strcasecmp($signature, $hash) !== 0) {
-        // return bad request if signature does not match
-        http_response_code(400);
+        // return unauthorized if signature does not match
+        http_response_code(401);
         exit;
     }
 

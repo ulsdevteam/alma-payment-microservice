@@ -11,7 +11,7 @@ if ($method === 'OPTIONS') {
     http_response_code(200);
     exit;
 } else if (!in_array($method, ['GET', 'POST'])) {    
-    http_response_code(400);
+    http_response_code(405);
     exit;
 }
 
@@ -35,7 +35,7 @@ try {
         } else if ($contentType == 'application/x-www-form-urlencoded') {
             $body = $_POST;
         } else {
-            http_response_code('415');
+            http_response_code(415);
             exit;
         }
     }

@@ -6,7 +6,7 @@ use net\authorize\api\contract\v1 as AnetAPI;
 use net\authorize\api\controller as AnetController;
 
 if (isset($_SERVER['REQUEST_METHOD'])) {
-    http_response_code(404);
+    http_response_code(403);
     exit;
 }
 
