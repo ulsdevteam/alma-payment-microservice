@@ -26,7 +26,15 @@ try {
     switch ($notification->eventType) {
         case 'net.authorize.payment.authcapture.created':
             $transactionId = $notification->payload->id;
-            shell_exec('php record_alma_transaction.php ' . $transactionId . ' 2>&1 | tee -a record_transaction.log 2>/dev/null >/dev/null &');
+            if (defined('WEBHOOK_NOTIFICATION_LOG_PATH')) {
+                file_put_contents(WEBHOOK_NOTIFICATION_LOG_PATH, $body . "\n", FILE_APPEND);
+            }
+            $cmd = 'php record_alma_transaction.php ' . escapeshellarg($transactionId);
+            if (defined('WEBHOOK_OUTPUT_LOG_PATH')) {
+                exec($cmd . ' 2>&1 | tee -a ' . WEBHOOK_OUTPUT_LOG_PATH .' 2>/dev/null >/dev/null &');
+            } else {
+                exec($cmd . ' >/dev/null &');
+            }
             break;
         
         default:
@@ -41,7 +49,7 @@ try {
         if (isset($notification)) {
             $error_message = $notification->notificationId . ': ' . $error_message;
         }
-        file_put_contents(WEBHOOK_ERROR_LOG_PATH, date('[Y-m-d h:m:s] ') . $error_message, FILE_APPEND);
+        logWebhookError($error_message);
     }
     http_response_code(500);
     exit;

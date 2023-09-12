@@ -45,12 +45,9 @@ try {
         ]);
         $alma->post($url, null);
     }
-} catch (Throwable $e) {
-    if (defined('WEBHOOK_ERROR_LOG_PATH')) {
-        $error_message = date('[Y-m-d h:m:s] ') . $e . "\n";
-        file_put_contents(WEBHOOK_ERROR_LOG_PATH, $error_message, FILE_APPEND);
-    }
+} catch (Throwable $error) {
+    logWebhookError($error);
     if (defined('WEBHOOK_ERROR_NOTIFICATION_EMAIL')) {
-        mail(WEBHOOK_ERROR_NOTIFICATION_EMAIL, 'Alma Payment Receipt Webhook Error for Transaction ' . $transactionId, $e);
+        mail(WEBHOOK_ERROR_NOTIFICATION_EMAIL, 'Alma Payment Receipt Webhook Error for Transaction ' . $transactionId, $error);
     }
 }
