@@ -47,7 +47,5 @@ try {
     }
 } catch (Throwable $error) {
     logWebhookError($error);
-    if (defined('WEBHOOK_ERROR_NOTIFICATION_EMAIL')) {
-        mail(WEBHOOK_ERROR_NOTIFICATION_EMAIL, 'Alma Payment Receipt Webhook Error for Transaction ' . $transactionId, $error);
-    }
+    mailWebhookError('Alma Payment Receipt Webhook Error for Transaction ' . $transactionId, $error);
 }

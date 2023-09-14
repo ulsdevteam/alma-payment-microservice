@@ -30,10 +30,19 @@ try {
                 file_put_contents(WEBHOOK_NOTIFICATION_LOG_PATH, $body . "\n", FILE_APPEND);
             }
             $cmd = 'php record_alma_transaction.php ' . escapeshellarg($transactionId);
-            if (defined('WEBHOOK_OUTPUT_LOG_PATH')) {
-                exec($cmd . ' 2>&1 | tee -a ' . WEBHOOK_OUTPUT_LOG_PATH .' 2>/dev/null >/dev/null &');
-            } else {
-                exec($cmd . ' >/dev/null &');
+            $output = defined('WEBHOOK_OUTPUT_LOG_PATH') ? WEBHOOK_OUTPUT_LOG_PATH : '/dev/null';
+            $descriptors = array(
+                0 => array('file', '/dev/null', 'r'),
+                1 => array('file', $output, 'a'),
+                2 => array('pipe', 'w')
+            );
+            $process = proc_open($cmd, $descriptors, $pipes);
+            if (!is_resource($process)) {
+                throw new Exception('Failed to open process.');
+            }
+            stream_set_blocking($pipes[2], false);
+            if ($err = stream_get_contents($pipes[2])) {
+                throw new Exception('Failed to open process: ' . $err);
             }
             break;
         
@@ -44,13 +53,14 @@ try {
     http_response_code(200);
     exit;
 } catch (Throwable $e) {
-    if (defined('WEBHOOK_ERROR_LOG_PATH')) {
-        $error_message = $e . "\n";
-        if (isset($notification)) {
-            $error_message = $notification->notificationId . ': ' . $error_message;
-        }
-        logWebhookError($error_message);
+    $error_message = $e . "\n";
+    if (isset($notification)) {
+        $error_message = 
+            '[notificationId:' . $notification->notificationId . 
+            '; transactionId:' . $notification->payload->id . '] ' . $error_message;
     }
+    logWebhookError($error_message);
+    mailWebhookError('Alma Payment Receipt Webhook Error 500', $error_message);
     http_response_code(500);
     exit;
 }
