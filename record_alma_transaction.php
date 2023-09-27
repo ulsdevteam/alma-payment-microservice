@@ -26,7 +26,7 @@ try {
     } else if ($response->getMessages()->getResultCode() != "Ok") {
         $exceptionMessage = '';
         foreach ($response->getMessages()->getMessage() as $errorMessage) {
-            $exceptionMessage = $exceptionMessage . $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
+            $exceptionMessage .= $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
         }
         throw new Exception($exceptionMessage);        
     }

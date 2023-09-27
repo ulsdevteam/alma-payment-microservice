@@ -231,7 +231,7 @@ function getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key
     } else if ($response != null) {
         $exceptionMessage = '';
         foreach ($response->getMessages()->getMessage() as $errorMessage) {
-            $exceptionMessage = $exceptionMessage . $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
+            $exceptionMessage .= $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
         }
         throw new Exception($exceptionMessage);      
     } else {
