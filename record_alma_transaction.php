@@ -24,8 +24,11 @@ try {
     if ($response == null) {
         throw new Exception("An error occurred when retrieving transaction details.");
     } else if ($response->getMessages()->getResultCode() != "Ok") {
-        $errorMessages = $response->getMessages()->getMessage();
-        throw new Exception($errorMessages[0]->getCode() . " " . $errorMessages[0]->getText());        
+        $exceptionMessage = '';
+        foreach ($response->getMessages()->getMessage() as $errorMessage) {
+            $exceptionMessage = $exceptionMessage . $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
+        }
+        throw new Exception($exceptionMessage);        
     }
 
     $transaction = $response->getTransaction();

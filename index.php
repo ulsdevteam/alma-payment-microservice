@@ -229,8 +229,11 @@ function getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key
     if ($response != null && $response->getMessages()->getResultCode() == "Ok") {
         return $response->getToken();
     } else if ($response != null) {
-        $errorMessages = $response->getMessages()->getMessage();
-        throw new Exception($errorMessages[0]->getCode() . " " . $errorMessages[0]->getText());        
+        $exceptionMessage = '';
+        foreach ($response->getMessages()->getMessage() as $errorMessage) {
+            $exceptionMessage = $exceptionMessage . $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
+        }
+        throw new Exception($exceptionMessage);      
     } else {
         throw new Exception("An error occurred when requesting a hosted payment page token.");
     }
