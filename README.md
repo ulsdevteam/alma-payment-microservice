@@ -65,7 +65,7 @@ A GET request to this endpoint will return a JSON array of objects containing a 
 
 ## [receipt.php](receipt.php)
 
-When a transaction is processed in Authorize.net, it is configured to POST a `net.authorize.payment.authcapture.created` event to this endpoint as a webhook. This endpoint gets the transaction data based on the ID contained in the event, then updates the Alma fees to be paid based on that transaction data.
+When a transaction is processed in Authorize.net, it is configured to POST a `net.authorize.payment.authcapture.created` event to this endpoint as a webhook. In order to immediately signal to Authorize.net that the notification is being processed, this endpoint passes the transaction id to the [record_alma_transactions.php](record_alma_transactions.php) script using `proc_open`, and immediately returns a 200 result. The new process gets the transaction data based on the ID contained in the event, then updates the Alma fees to be paid based on that transaction data.
 
 ## License
 

@@ -15,6 +15,8 @@ define('ALLOWED_LIBRARY_CODES', ['array of library codes', 'whose fees may be pa
 define('EXCLUDED_LIBRARY_CODES', ['array of library codes', 'whose fees may NOT be paid using this service']);
 // Optional, for those cases where a minimum amount is desired due to payment processor fees, etc.
 define('MINIMUM_TOTAL_AMOUNT', 5.00);
-define('WEBHOOK_LOG_PATH', 'receipt_webhook.log');
+define('WEBHOOK_NOTIFICATION_LOG_PATH', 'notification.log');
+define('WEBHOOK_OUTPUT_LOG_PATH', 'receipt_webhook_output.log');
 define('WEBHOOK_ERROR_LOG_PATH', 'receipt_webhook_error.log');
+define('WEBHOOK_ERROR_NOTIFICATION_EMAIL', 'example@example.com');
 ?>

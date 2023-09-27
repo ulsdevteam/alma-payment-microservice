@@ -11,7 +11,7 @@ if ($method === 'OPTIONS') {
     http_response_code(200);
     exit;
 } else if (!in_array($method, ['GET', 'POST'])) {    
-    http_response_code(400);
+    http_response_code(405);
     exit;
 }
 
@@ -35,7 +35,7 @@ try {
         } else if ($contentType == 'application/x-www-form-urlencoded') {
             $body = $_POST;
         } else {
-            http_response_code('415');
+            http_response_code(415);
             exit;
         }
     }
@@ -187,7 +187,7 @@ function getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key
     
     // invoice number based on the microsecond
     $order = new AnetAPI\OrderType();
-    $order->setInvoiceNumber('A' . microtime(true) * 10000);
+    $order->setInvoiceNumber('ALMA' . microtime(true) * 10000);
     $transactionRequest->setOrder($order);
 
     // set the alma user id as the customer id, will be retrieved in the receipt webhook
@@ -229,8 +229,11 @@ function getAuthorizeTransactionToken($user, $fees, $hosted_payment_settings_key
     if ($response != null && $response->getMessages()->getResultCode() == "Ok") {
         return $response->getToken();
     } else if ($response != null) {
-        $errorMessages = $response->getMessages()->getMessage();
-        throw new Exception($errorMessages[0]->getCode() . " " . $errorMessages[0]->getText());        
+        $exceptionMessage = '';
+        foreach ($response->getMessages()->getMessage() as $errorMessage) {
+            $exceptionMessage .= $errorMessage->getCode() . " " . $errorMessage->getText() . "\n";
+        }
+        throw new Exception($exceptionMessage);      
     } else {
         throw new Exception("An error occurred when requesting a hosted payment page token.");
     }

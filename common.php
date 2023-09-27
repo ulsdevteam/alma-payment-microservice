@@ -134,3 +134,25 @@ function isAllowed(string $libraryCode): bool {
         return true;
     }
 }
+
+/**
+ * Write an error to the webhook error log.
+ * @param Throwable|string $error
+ */
+function logWebhookError($error) {
+    if (defined('WEBHOOK_ERROR_LOG_PATH')) {
+        $error_message = date('[Y-m-d h:m:s] ') . $error . "\n";
+        file_put_contents(WEBHOOK_ERROR_LOG_PATH, $error_message, FILE_APPEND);
+    }
+}
+
+/**
+ * Mails an error report to the configured recipient.
+ * @param string $subject
+ * @param Throwable|string $error
+ */
+function mailWebhookError($subject, $error) {
+    if (defined('WEBHOOK_ERROR_NOTIFICATION_EMAIL')) {
+        mail(WEBHOOK_ERROR_NOTIFICATION_EMAIL, $subject, $error);
+    }
+}
